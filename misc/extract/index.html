@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>NFC-E Data Extact</title>
+	<link rel="icon" type="image/png" href="https://cdn1.iconfinder.com/data/icons/CrystalClear/22x22/actions/ark_extract.png">
+	<meta charset="utf-8">
+	<!-- Latest compiled and minified CSS & JS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<script src="//code.jquery.com/jquery.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<script src="./extractor.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="col-md-12">
+			<div class="col-md-offset-3 col-md-6">
+				<form action="" method="post" id="form_key">
+					<h2 class="form-signin-heading">Extração de dados da NFC-E</h2>
+					<div class="form-group">
+						<input type="text" name="key" class="form-control" id="access_key" placeholder="Chave de acesso da nota" />
+					</div>
+					<button type="submit" class="btn btn-primary btn-block">Submit</button>
+				</form>
+			</div>
+			<!-- Mensagem de Alerta -->
+			<div class="form-group" id="div_mensagem">
+		  	  	<div class="col-md-offset-3 col-md-6 text-center">
+		  	  	  	<div id="mensagem"></div>
+		  	  	</div>
+			</div>
+		</div>
+		<!-- Resultado -->
+		<div class="form-group col-md-offset-1 col-md-10" id="div_resultado"></div>
+	</div>
+</body>
+</html>
