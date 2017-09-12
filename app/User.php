@@ -26,4 +26,13 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Returns the products owned by the user.
+     * 
+     * @return App\Product
+     */
+    public function products(){
+        return $this->hasMany(Product::class);
+    }
 }
