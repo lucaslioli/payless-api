@@ -19,9 +19,32 @@
 
 	$link = "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?chNFe=".$key;
 
-	$conteudo = file_get_contents($link);
-	$conteudo = trim(preg_replace('/\s+/', ' ', $conteudo));
-	$conteudo = explode('<div id="nfce">', $conteudo);
+	// Busca conteúdo do link
+	$content = utf8_encode(file_get_contents($link));
+	// Elimina os espapaços indesejados da string
+	$content = trim(preg_replace('/\s+/', ' ', $content));
+	// Seleciona apenas a parte onde o backgrund é da cor
+	$content = explode("#FFFFEA", $content)[1];
+	// Separa apenas a tabela que possui o conteúdo de interesse
+	$content = strstr($content, "<table");
+	$content = substr($content, 0, strpos($content, "Versão XSLT"));
+	$content = substr($content, 0, strrpos($content, "<tr>"))."</table>";
 
-	var_dump($conteudo);
+	// Abre/cria arquivo para armazenar o conteúdo
+	/*$file_name = "nfce_content.html";
+	$file 	   = fopen($file_name, 'w+');
+	
+	// Escreve no arquivo e o fecha logo em seguida
+	fwrite($file, $content);
+	fclose($file);*/
+
+	// Inicializa um objeto DOM
+	$dom = new DOMDocument;
+	// Carrega o conteúdo como HTML
+	$dom->loadHTML($content);
+	$obj = $dom->getElementsByTagName('table');
+	
+	foreach ($obj as $tr)
+	   	var_dump($tr)
+
 ?>
