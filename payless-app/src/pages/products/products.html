@@ -1,0 +1,17 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Products</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+    <ion-list>
+      <button ion-item *ngFor="let p of products" (click)="getProductInfo(p.id)">
+        {{ p.description }}
+      </button>  
+    </ion-list>
+</ion-content>

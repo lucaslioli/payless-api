@@ -1,0 +1,20 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>TestPage</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-card>
+    <ion-card-header>
+      {{ product.description }}
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Preço:</strong> {{ product.price }}</p>
+      <p><strong>Fora de estoque:</strong> {{ product.sold_out }}</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
