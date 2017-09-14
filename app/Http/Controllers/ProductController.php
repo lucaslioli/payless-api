@@ -16,7 +16,7 @@ class ProductController extends Controller
     {
         $products = Product::all();
 
-        return response()->json(array('products' => $products));
+        return response()->json($products);
     }
 
     /**
