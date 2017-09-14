@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { Http } from '@angular/http';
+import { TestPage } from '../test/test';
 
 import 'rxjs/add/operator/map';
 
@@ -26,8 +27,12 @@ export class ProductsPage {
         });
   }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad ProductsPage');
+  getProductInfo(id) {
+    this.navCtrl.push(TestPage,
+    {
+      'product_id': id,
+      'api_url': this.url
+    });
   }
 
 }

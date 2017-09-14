@@ -7,6 +7,7 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { ListPage } from '../pages/list/list';
 import { ProductsPageModule } from '../pages/products/products.module';
+import { TestPageModule } from '../pages/test/test.module';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -22,6 +23,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     IonicModule.forRoot(MyApp),
     HttpModule,
     ProductsPageModule,
+    TestPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
