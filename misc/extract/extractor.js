@@ -23,11 +23,15 @@ $(document).on("keyup","#access_key", function(e){
 $(document).on("submit","#form_key", function(e){
 	e.preventDefault();
 
+	$("#div_mensagem").hide();
+
 	if($("#access_key").val().length!=44){
 		mensagem("erro", "Valor informado não corresponde a chave de acesso.", "mensagem");
 		$("#div_mensagem").show();
 		return;
 	}
+
+	$("#loading").show();
 
 	$.ajax({
 		type: "POST",
@@ -39,9 +43,8 @@ $(document).on("submit","#form_key", function(e){
 		},
 		error: function(data){
 			mensagem("erro", "Ocorreu um erro ao solicitar a extração dos dados.", "mensagem");
-		},
-		finally: function(data){
-			$("#div_mensagem").show();
 		}
 	})
+	$("#loading").hide();
+	$("#div_mensagem").show();
 });
