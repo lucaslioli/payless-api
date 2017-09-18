@@ -26,7 +26,7 @@ $(document).on("submit","#form_key", function(e){
 	$("#div_mensagem").hide();
 
 	if($("#access_key").val().length!=44){
-		mensagem("erro", "Valor informado não corresponde a chave de acesso.", "mensagem");
+		mensagem("erro", "Valor informado não corresponde a chave de acesso. <b>Verifique se contém 44 dígitos</b>.", "mensagem");
 		$("#div_mensagem").show();
 		return;
 	}
@@ -35,16 +35,16 @@ $(document).on("submit","#form_key", function(e){
 
 	$.ajax({
 		type: "POST",
-        url: "extractor.php",
-        data: {key: $("#access_key").val()},
-        success: function(data){
+		url: "extractor.php",
+		data: {key: $("#access_key").val()},
+		success: function(data){
 			// mensagem(json['tipo'], json['msg'], "mensagem");
 			$("#div_resultado").html(data);
 		},
 		error: function(data){
 			mensagem("erro", "Ocorreu um erro ao solicitar a extração dos dados.", "mensagem");
+			$("#div_mensagem").show();
 		}
 	})
 	$("#loading").hide();
-	$("#div_mensagem").show();
 });
