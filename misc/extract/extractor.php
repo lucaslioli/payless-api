@@ -25,6 +25,10 @@
 
 		// Busca conteúdo do link
 		$content = utf8_encode(file_get_contents($link));
+
+		if(strpos($content, "#FFFFEA") === FALSE)
+			return FALSE;
+
 		// Elimina os espapaços indesejados da string
 		$content = trim(preg_replace('/\s+/', ' ', $content));
 		// Seleciona apenas a parte onde o background é da cor #FFFFEA
@@ -176,6 +180,11 @@
 	$key = $_POST["key"];
 	$content = get_nfce_content($key);
 
+	if($content == FALSE){
+		echo '<div class="alert alert-danger alert-dismissable fade in text-center"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Erro!</strong> Chave de Acesso <strong>inválida</strong>!</div>';
+		return FALSE;
+	}
+
 	// Inicializa um objeto DOM
 	$dom = new DOMDocument;
 	// Descarta os espaços em branco
@@ -203,5 +212,5 @@
 	# TABELA 7 - Valores totais da nota (sem uso aparente)
 	// echo "<pre>"; print_r($data); echo "</pre>";
 	print_nfce_data($data);
-	return;
+	return TRUE;
 ?>
