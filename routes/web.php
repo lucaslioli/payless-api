@@ -22,10 +22,10 @@ Route::get('/home', 'HomeController@index')->name('home');
 /**
  * Product routes
  */
-Route::get('/products', 'ProductController@index');
-Route::get('/products/create', 'ProductController@create');
-Route::post('/products', 'ProductController@store');
-Route::get('/products/{product}', 'ProductController@show');
-Route::get('/products/{product}/edit', 'ProductController@edit');
-Route::put('/products/{product}', 'ProductController@update');
-Route::delete('/products/{product}', 'ProductController@destroy');
+Route::get('/products', 'ProductController@index')->middleware('cors');
+Route::get('/products/create', 'ProductController@create')->middleware('cors');
+Route::post('/products', 'ProductController@store')->middleware('cors');
+Route::get('/products/{product}', 'ProductController@show')->middleware('cors');
+Route::get('/products/{product}/edit', 'ProductController@edit')->middleware('cors');
+Route::put('/products/{product}', 'ProductController@update')->middleware('cors');
+Route::delete('/products/{product}', 'ProductController@destroy')->middleware('cors');
