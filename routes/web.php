@@ -29,3 +29,8 @@ Route::get('/products/{product}', 'ProductController@show')->middleware('cors');
 Route::get('/products/{product}/edit', 'ProductController@edit')->middleware('cors');
 Route::put('/products/{product}', 'ProductController@update')->middleware('cors');
 Route::delete('/products/{product}', 'ProductController@destroy')->middleware('cors');
+
+/**
+ * Nfce routes
+ */
+Route::get('/nfce/{key}', 'NfceController@show');
