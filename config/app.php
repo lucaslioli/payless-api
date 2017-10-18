@@ -177,6 +177,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /*
+         * Laravel CORS Service Provider
+         */
+        Barryvdh\Cors\ServiceProvider::class,
     ],
 
     /*
