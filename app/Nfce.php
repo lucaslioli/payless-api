@@ -127,10 +127,13 @@ class Nfce extends Model
         for ($i=1; $i < $rows->length; $i++) { 
             $cols = $rows->item($i)->getElementsByTagName('td');
             
-            $data[$i]['codigo'] = $cols->item(0)->nodeValue;
-            $data[$i]['descricao'] = $cols->item(1)->nodeValue;
-            $data[$i]['valor'] = $cols->item(4)->nodeValue;
-            $data[$i]['un'] = $cols->item(3)->nodeValue;
+            $produto['codigo'] = $cols->item(0)->nodeValue;
+            $produto['descricao'] = $cols->item(1)->nodeValue;
+            $produto['valor'] = $cols->item(4)->nodeValue;
+            $produto['un'] = $cols->item(3)->nodeValue;
+
+            array_push($data,$produto);
+            
         }
 
         return $data;
@@ -180,7 +183,7 @@ class Nfce extends Model
             return $data;
         
         try {
-            // Nfce::create(['access_key' => $key]);
+            Nfce::create(['access_key' => $key]);
             return $data;
 
         } catch (\Illuminate\Database\QueryException $e) {
