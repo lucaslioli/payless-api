@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Nfce;
+use App\Nota;
 use Illuminate\Http\Request;
 
-class NfceController extends Controller
+class NotaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -41,26 +41,21 @@ class NfceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Nfce  $nfce
+     * @param  \App\Nota  $nota
      * @return \Illuminate\Http\Response
      */
-    public function show($key)
+    public function show(Nota $nota)
     {
-        if(strlen($key)!=44)
-            return "400";
-
-        $data = Nfce::get_all_data($key);
-        return response()->json($data);
-        // return $data->toJson();
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Nfce  $nfce
+     * @param  \App\Nota  $nota
      * @return \Illuminate\Http\Response
      */
-    public function edit(Nfce $nfce)
+    public function edit(Nota $nota)
     {
         //
     }
@@ -69,10 +64,10 @@ class NfceController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Nfce  $nfce
+     * @param  \App\Nota  $nota
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Nfce $nfce)
+    public function update(Request $request, Nota $nota)
     {
         //
     }
@@ -80,10 +75,10 @@ class NfceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Nfce  $nfce
+     * @param  \App\Nota  $nota
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Nfce $nfce)
+    public function destroy(Nota $nota)
     {
         //
     }

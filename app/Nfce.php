@@ -187,7 +187,7 @@ class Nfce extends Model
             return $data;
 
         } catch (\Illuminate\Database\QueryException $e) {
-            return "Chave de acesso já cadastrada!";
+            return "202";
             // return $e->getMessage();
         }
 
