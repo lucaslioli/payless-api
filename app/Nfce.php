@@ -6,16 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use DOMDocument;
 use DOMElement;
 use Exeption;
+use DB;
 
 class Nfce extends Model
 {
     protected $fillable = ['access_key'];
     
     /**
-        * [get_content description]
-        * @param  String $key Chave de acesso da NFC-e
-        * @return String      Tabela com todas as informações da NFC-e
-        */
+     * [get_content description]
+     * @param  String $key Chave de acesso da NFC-e
+     * @return String      Tabela com todas as informações da NFC-e
+     */
     public static function get_nfce_content($key){
 
         $link = "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?chNFe=".$key;
@@ -39,11 +40,11 @@ class Nfce extends Model
     }
 
     /**
-        * Extrai os dados do Estabelecimento a partir de objeto DOMElement 
-        * @param  DOMElement $table1 Objeto que contem a 1ª parte dos dados
-        * @param  DOMElement $table2 Objeto que contem a 2ª parte dos dados
-        * @return Array              Array com os dados do estabelecimento
-        */
+     * Extrai os dados do Estabelecimento a partir de objeto DOMElement 
+     * @param  DOMElement $table1 Objeto que contem a 1ª parte dos dados
+     * @param  DOMElement $table2 Objeto que contem a 2ª parte dos dados
+     * @return Array              Array com os dados do estabelecimento
+     */
     public static function get_company_data(DOMElement  $table1, DOMElement  $table2){
 
         $content = array();
@@ -76,10 +77,10 @@ class Nfce extends Model
     }
 
     /**
-        * Extrai os dados da NFC-e a partir de objeto DOMElement
-        * @param  DOMElement $table Objeto que contem a tabela com os dados
-        * @return Array             Array com os dados da NFC-e
-        */
+     * Extrai os dados da NFC-e a partir de objeto DOMElement
+     * @param  DOMElement $table Objeto que contem a tabela com os dados
+     * @return Array             Array com os dados da NFC-e
+     */
     public static function get_nfce_data(DOMElement $table){
 
         $content = array();
@@ -114,10 +115,10 @@ class Nfce extends Model
     }
 
     /**
-        * Extrai os dados dos Produtos a partir de objeto DOMElement
-        * @param  DOMElement $table Objeto que contem a tabela com todos os produtos
-        * @return Array             Array com os dados dos produtos
-        */
+     * Extrai os dados dos Produtos a partir de objeto DOMElement
+     * @param  DOMElement $table Objeto que contem a tabela com todos os produtos
+     * @return Array             Array com os dados dos produtos
+     */
     public static function get_products_data(DOMElement $table){
 
         $data = array();
@@ -141,12 +142,12 @@ class Nfce extends Model
     }
 
     /**
-        * Script responsável por extrair os dados da nota
-        * @param  int  $key       chave de acesso da nota com 44 dígitos
-        * @param  int  $just_show Opcional. Se for 1, não irá gravar no banco. Default: 0
-        * @return void            retorna array com todos os dados ou mensagem de erro
-        */
-    public static function get_all_data($key, int $just_show = 0){
+     * Script responsável por extrair os dados da nota
+     * @param  int  $key         chave de acesso da nota com 44 dígitos
+     * @param  int  $dont_insert Opcional. Se for 1, não irá gravar no banco. Default: 0
+     * @return json              Retorna JSON com todos os dados ou mensagem de erro
+     */
+    public static function get_all_data($key, int $dont_insert = 0){
 
         $content = self::get_nfce_content($key);
 
@@ -179,7 +180,7 @@ class Nfce extends Model
 
         # TABELA 7 - Valores totais da nota (sem uso aparente)
         
-        if($just_show)
+        if($dont_insert)
             return $data;
         
         try {
@@ -192,4 +193,113 @@ class Nfce extends Model
         }
 
     }
+
+    /**
+     * Based in the key which already has been inserted, 
+     * this function will get all the data from each NFC-e
+     * and will register all them in the other tables
+     * @return Void Cadastra dado no banco e imprime na tela casos de erro
+     */
+    public static function integrate_nfces(){
+        $nfces = DB::table('nfces')->get();
+
+        foreach ($nfces as $nfce) {
+            DB::beginTransaction();
+
+            $ERROS = 0;
+            // Verifica se Nota existe, se sim, pula para a próxima
+            $nota = DB::table('notas')->where('chave_acesso', $nfce->access_key)->first();
+            if(!is_null($nota))
+                continue;
+
+            $data = self::get_all_data($nfce->access_key, true);
+
+            $data = json_decode(json_encode ($data), FALSE);
+
+            $data->nfce->data_emissao = preg_replace('#(\d{2})/(\d{2})/(\d{4})#', '$3-$2-$1', $data->nfce->data_emissao);
+
+            // Verifica se Estabelecimento existe, se não, cadastra
+            $estabelecimento = DB::table('estabelecimentos')->where([
+                ['cnpj', $data->estabelecimento->cnpj], 
+                ['endereco', $data->estabelecimento->endereco]])->first();
+
+            if(is_null($estabelecimento)){
+                try {
+                    $estabelecimento = Estabelecimento::create([
+                        'nome' => $data->estabelecimento->nome,
+                        'cnpj' => $data->estabelecimento->cnpj,
+                        'endereco' => $data->estabelecimento->endereco,
+                    ]);
+                } catch (\Illuminate\Database\QueryException $e) {
+                    echo "<br/>Falha ao cadastrar estabelecimento ".$data->estabelecimento->nome;
+                    $ERROS++;
+                    continue;
+                }
+            }
+
+            try {
+                $nota = Nota::create([
+                    'user_id' => 1,
+                    'estabelecimento_id' => $estabelecimento->id,
+                    'serie' => $data->nfce->serie,
+                    'chave_acesso' => $nfce->access_key,
+                    'data_emissao' => $data->nfce->data_emissao,
+                    'hora_emissao' => $data->nfce->hora_emissao
+                ]);
+            } catch (\Illuminate\Database\QueryException $e) {
+                echo "<br/>Falha ao cadastrar nota do ID: ".$nfce->id." e chave ".$nfce->access_key;
+                $ERROS++;
+                continue;
+            }
+
+            foreach ($data->produtos as $produto) {
+                $produto_result = DB::table('produtos')
+                    ->join('notas', 'produtos.nfce_id', '=', 'notas.id')
+                    ->where([
+                        ['produtos.codigo', $produto->codigo], 
+                        ['notas.estabelecimento_id', $estabelecimento->id]])
+                    ->first();
+
+                $produto->valor = floatval(str_replace(",", ".", $produto->valor));
+
+                if(is_null($produto_result)){
+                    try {
+                        $produto = Produto::create([
+                            'nfce_id' => $nota->id,
+                            'codigo' => $produto->codigo,
+                            'descricao' => strtoupper($produto->descricao),
+                            'valor' => $produto->valor,
+                            'un' => strtoupper($produto->un)
+                        ]);
+                    } catch (\Illuminate\Database\QueryException $e) {
+                        echo "<br/>Falha ao cadastrar produto ".$produto->descricao." da nota ".$nfce->access_key;
+                        $ERROS++;
+                        break;
+                    }
+                }else{
+                    if($produto_result->data_emissao > $nota->data_emissao){
+                        try{
+                            $produto_result = DB::table('produtos')
+                                ->where('id', $produto_result->id)
+                                ->update(['valor' => $produto->valor]);
+                        } catch (\Illuminate\Database\QueryException $e) {
+                            echo "<br/>Falha ao atualizar produto ".$produto->descricao." da nota ".$nota->id." ERRO: ".$e;
+                            $ERROS++;
+                            break;
+                        }
+                    }
+                }
+            } // Fecha foreach de produtos
+            if($ERROS){
+                DB::rollback();
+                echo "<br/>ERRO - ".$nfce->access_key."";
+                return;
+            }else{
+                DB::commit();
+                echo "Ok - ".$nfce->access_key."<br/>";
+            }
+        } // Fecha foreach de nfces
+        return;
+    }
+
 }
