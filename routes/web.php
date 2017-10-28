@@ -34,3 +34,4 @@ Route::delete('/products/{product}', 'ProductController@destroy');
  * Nfce routes
  */
 Route::get('/nfce/{key}', 'NfceController@show');
+Route::get('/nfce_integrate_all', 'NfceController@integrate_all');

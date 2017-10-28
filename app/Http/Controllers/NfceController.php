@@ -87,4 +87,18 @@ class NfceController extends Controller
     {
         //
     }
+
+    /**
+     * Based in the key which already has been inserted, 
+     * this function will get all the data from each NFC-e
+     * and will register all them in the other tables
+     *
+     * @param  \App\Nfce  $nfce
+     * @return \Illuminate\Http\Response
+     */
+    public function integrate_all()
+    {
+        $data = Nfce::integrate_nfces();
+        return $data;
+    }
 }
