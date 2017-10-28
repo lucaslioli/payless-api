@@ -17,10 +17,11 @@ class CreateProdutosTable extends Migration
             $table->increments('id');
             $table->integer('nfce_id')->unsigned();
             $table->foreign('nfce_id')->references('id')->on('notas');
-            $table->integer('codigo');
+            $table->string('codigo');
             $table->string('descricao');
             $table->float('valor', 8, 2);
             $table->string('un');
+            $table->timestamps();
         });
     }
 
