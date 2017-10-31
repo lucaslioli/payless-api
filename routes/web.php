@@ -23,15 +23,21 @@ Route::get('/home', 'HomeController@index')->name('home');
  * Product routes
  */
 Route::get('/products', 'ProductController@index');
-Route::get('/products/create', 'ProductController@create');
-Route::post('/products', 'ProductController@store');
 Route::get('/products/{product}', 'ProductController@show');
-Route::get('/products/{product}/edit', 'ProductController@edit');
-Route::put('/products/{product}', 'ProductController@update');
-Route::delete('/products/{product}', 'ProductController@destroy');
+
+/**
+ * Produto routes
+ */
+Route::get('/produtos', 'ProdutoController@index');
+Route::get('/produtos/{produto}', 'ProdutoController@show');
 
 /**
  * Nfce routes
  */
 Route::get('/nfce/{key}', 'NfceController@show');
 Route::get('/nfce_integrate_all', 'NfceController@integrate_all');
+
+/**
+ * Nota routes
+ */
+Route::get('/nota/{key}', 'NotaController@store_nfce_data');

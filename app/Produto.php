@@ -12,4 +12,5 @@ class Produto extends Model
     	'descricao', 
     	'valor', 
     	'un'
-    ];}
+	];
+}

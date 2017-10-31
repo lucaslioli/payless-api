@@ -38,6 +38,15 @@ class NotaController extends Controller
         //
     }
 
+    public function store_nfce_data($key){
+        if(strlen($key)!=44)
+            return "400";
+
+        $data = Nota::store_nfce($key);
+        return $data == "200"? "200": "400";
+
+    }
+
     /**
      * Display the specified resource.
      *

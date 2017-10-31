@@ -209,8 +209,10 @@ class Nfce extends Model
             $ERROS = 0;
             // Verifica se Nota existe, se sim, pula para a próxima
             $nota = DB::table('notas')->where('chave_acesso', $nfce->access_key)->first();
-            if(!is_null($nota))
+            if(!is_null($nota)){
+                echo "<br/>Nota fiscal já cadastrada. ".$nota->chave_acesso;
                 continue;
+            }
 
             $data = self::get_all_data($nfce->access_key, true);
 
