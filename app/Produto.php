@@ -39,8 +39,7 @@ class Produto extends Model
 			FROM produtos p 
 				JOIN notas n ON p.nfce_id = n.id
 				JOIN estabelecimentos e ON n.estabelecimento_id = e.id
-			WHERE p.id = '$menor_preco->id'
-			GROUP BY p.descricao"));
+			WHERE p.id = '$menor_preco->id'"));
 
         return $produto_result;
 	}
