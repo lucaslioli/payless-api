@@ -14,7 +14,7 @@ class ProdutoController extends Controller
      */
     public function index()
     {
-        $produtos = Produto::all();
+        $produtos = Produto::get_home_data();
         
         return response()->json($produtos);
     }
@@ -46,8 +46,9 @@ class ProdutoController extends Controller
      * @param  \App\Produto  $produto
      * @return \Illuminate\Http\Response
      */
-    public function show(Produto $produto)
-    {
+    public function show($descricao)
+    {   
+        $produto = Produto::get_product_data($descricao);
         return response()->json($produto);
     }
 
