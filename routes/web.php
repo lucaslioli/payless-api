@@ -20,6 +20,11 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 /**
+ * Estabelecimento routes
+ */
+Route::get('/estabelecimentos', 'EstabelecimentoController@index');
+
+/**
  * Product routes
  */
 Route::get('/products', 'ProductController@index');

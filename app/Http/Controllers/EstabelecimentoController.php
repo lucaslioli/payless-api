@@ -14,7 +14,9 @@ class EstabelecimentoController extends Controller
      */
     public function index()
     {
-        //
+        $estabelecimentos = Estabelecimento::all();
+
+        return response()->json($estabelecimentos);
     }
 
     /**
