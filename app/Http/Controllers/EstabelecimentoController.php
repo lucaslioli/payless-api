@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Estabelecimento;
 use Illuminate\Http\Request;
+use DB;
 
 class EstabelecimentoController extends Controller
 {
@@ -14,9 +15,23 @@ class EstabelecimentoController extends Controller
      */
     public function index()
     {
-        $estabelecimentos = Estabelecimento::all();
+        $estabelecimentos = Estabelecimento::get_all();
 
         return response()->json($estabelecimentos);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Estabelecimento  $estabelecimento
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $estabelecimento['dados'] = Estabelecimento::get_all_from($id);
+        $estabelecimento['produtos'] = Estabelecimento::get_products($id);
+
+        return response()->json($estabelecimento);
     }
 
     /**
@@ -36,17 +51,6 @@ class EstabelecimentoController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Estabelecimento  $estabelecimento
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Estabelecimento $estabelecimento)
     {
         //
     }

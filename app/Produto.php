@@ -18,7 +18,7 @@ class Produto extends Model
 	public static function get_home_data(){
 		$produto_result = DB::table('produtos')
 			->join('notas', 'produtos.nfce_id', '=', 'notas.id')
-			->select(DB::raw('produtos.id, produtos.descricao, ROUND(produtos.valor, 2) as valor, DATE_FORMAT(notas.data_emissao, "%d/%b/%Y") as data_emissao'))
+			->select(DB::raw('produtos.id, produtos.descricao, ROUND(produtos.valor, 2) as valor, DATE_FORMAT(notas.data_emissao, "%d/%b/%Y") as data_emissao, notas.estabelecimento_id'))
 			->where('descricao', 'like', '%CERV%')
 			->get();
 
@@ -26,7 +26,7 @@ class Produto extends Model
 	}
 
 	public static function get_product_data($desc){
-		$menor_preco = DB::table('produtos')->select('id')->where('descricao', $desc)->orderBy('valor')->first();
+		// $menor_preco = DB::table('produtos')->select('id')->where('descricao', $desc)->orderBy('valor')->first();
 
 		$produto_result = DB::select(DB::raw("SELECT p.id, p.descricao, p.un, p.valor, 
 				e.endereco, n.data_emissao, n.hora_emissao
