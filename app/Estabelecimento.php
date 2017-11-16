@@ -31,7 +31,7 @@ class Estabelecimento extends Model
 	}
 	
 	public static function get_products($id){
-		$produtos = DB::select(DB::raw("SELECT p.descricao, ROUND(p.valor, 2), DATE_FORMAT(n.data_emissao, '%d/%b/%Y') as data_emissao
+		$produtos = DB::select(DB::raw("SELECT p.descricao, ROUND(p.valor, 2) as valor, DATE_FORMAT(n.data_emissao, '%d/%b/%Y') as data_emissao
 			FROM produtos p 
 				JOIN notas n ON p.nfce_id = n.id 
 				JOIN estabelecimentos e ON n.estabelecimento_id = e.id
