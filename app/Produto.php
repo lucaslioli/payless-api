@@ -29,7 +29,7 @@ class Produto extends Model
 		// $menor_preco = DB::table('produtos')->select('id')->where('descricao', $desc)->orderBy('valor')->first();
 
 		$produto_result = DB::select(DB::raw("SELECT p.id, p.descricao, p.un, p.valor, 
-				e.endereco, n.data_emissao, n.hora_emissao
+				e.endereco, n.data_emissao, n.hora_emissao, n.estabelecimento_id
 			FROM produtos p JOIN notas n ON p.nfce_id = n.id JOIN estabelecimentos e ON n.estabelecimento_id = e.id
 			WHERE p.id = '$desc'"));
 
