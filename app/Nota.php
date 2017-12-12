@@ -245,7 +245,7 @@ class Nota extends Model
 		// Verifica se Nota existe, se sim, pula para a próxima
 		$nota = DB::table('notas')->where('chave_acesso', $key)->first();
 		if(!is_null($nota)){
-			// echo "<br/>Nota fiscal já cadastrada. ".$nota->chave_acesso;
+			echo "<br/>Nota fiscal já cadastrada. ".$nota->chave_acesso;
 			return "400";
 		}
 
@@ -276,7 +276,7 @@ class Nota extends Model
 					'telefone' => $data->estabelecimento->telefone
 				]);
 			} catch (\Illuminate\Database\QueryException $e) {
-				// echo "<br/>Falha ao cadastrar estabelecimento ".$data->estabelecimento->nome;
+				echo "<br/>Falha ao cadastrar estabelecimento ".$data->estabelecimento->nome;
 				$ERROS++;
 			}
 		}
@@ -291,7 +291,7 @@ class Nota extends Model
 				'hora_emissao' => $data->nfce->hora_emissao
 			]);
 		} catch (\Illuminate\Database\QueryException $e) {
-			// echo "<br/>Falha ao cadastrar nota";
+			echo "<br/>Falha ao cadastrar nota";
 			$ERROS++;
 		}
 
@@ -317,7 +317,7 @@ class Nota extends Model
 						'ncm' => $produto->ncm
 					]);
 				} catch (\Illuminate\Database\QueryException $e) {
-					// echo "<br/>Falha ao cadastrar produto ".$produto->descricao." da nota ".$key;
+					echo "<br/>Falha ao cadastrar produto ".$produto->descricao." da nota ".$key;
 					$ERROS++;
 					break;
 				}
@@ -328,7 +328,7 @@ class Nota extends Model
 							->where('id', $produto_result->id)
 							->update(['valor' => $produto->valor]);
 					} catch (\Illuminate\Database\QueryException $e) {
-						// echo "<br/>Falha ao atualizar produto ".$produto->descricao." da nota ".$nota->id." ERRO: ".$e;
+						echo "<br/>Falha ao atualizar produto ".$produto->descricao." da nota ".$nota->id." ERRO: ".$e;
 						$ERROS++;
 						break;
 					}
@@ -338,11 +338,11 @@ class Nota extends Model
 
 		if($ERROS){
 			DB::rollback();
-			// echo "<br/>ERRO - ".$key."";
+			echo "<br/>ERRO - ".$key."";
 			return "400";
 		}else{
 			DB::commit();
-			// echo "Ok - ".$key."<br/>";
+			echo "Ok - ".$key."<br/>";
 			return "200";
 		}
 	}
