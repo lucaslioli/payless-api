@@ -17,17 +17,18 @@ class Produto extends Model
 		'ncm'
 	];
 
-	public static function get_home_data(){
-		$produto_result = DB::table('produtos')
-			->join('notas', 'produtos.nfce_id', '=', 'notas.id')
-			->select(DB::raw('produtos.id, produtos.descricao, ROUND(produtos.valor, 2) as valor, DATE_FORMAT(notas.data_emissao, "%d/%b/%Y") as data_emissao, notas.estabelecimento_id'))
-			->where('descricao', 'like', '%CERV%')
-			->get();
+	public static function get_home_data()
+	{
+		$produto_result = DB::select(DB::raw("SELECT p.id, p.descricao, ROUND(p.valor, 2) as valor, 
+				DATE_FORMAT(n.data_emissao, '%d/%b/%Y') as data_emissao, n.estabelecimento_id
+			FROM produtos p JOIN notas n ON p.nfce_id = n.id
+			WHERE SUBSTR(p.ncm, 1, 2) = '30'"));
 
         return $produto_result;
 	}
 
-	public static function get_product_data($desc){
+	public static function get_product_data($desc)
+	{
 		// $menor_preco = DB::table('produtos')->select('id')->where('descricao', $desc)->orderBy('valor')->first();
 
 		$produto_result = DB::select(DB::raw("SELECT p.id, p.descricao, p.un, p.valor, 

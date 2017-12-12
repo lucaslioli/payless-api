@@ -27,7 +27,7 @@ class Nota extends Model
 	 */
 	public static function get_nfce_content($key)
 	{
-		$link = "C:/Users/lucas/Desktop/Precify/exemplo-nota-tabs-1.html";
+		$link = "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-COM_2.asp?chaveNFe=".$key."&HML=false&NF=F082C5B49";
 
 		// Busca conteúdo do link
 		$content = utf8_encode(file_get_contents($link));
@@ -58,7 +58,7 @@ class Nota extends Model
 			$label = $col->getElementsByTagName('label')->item(0);
 
 			if($label){
-				$label->nodeValue = utf8_decode($label->nodeValue);
+				// $label->nodeValue = utf8_decode($label->nodeValue);
 
 				if(stripos($label->nodeValue, "Razão Social") !== FALSE){
 					$content['nome'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
@@ -110,7 +110,7 @@ class Nota extends Model
 			$label = $col->getElementsByTagName('label')->item(0);
 			
 			if($label){
-				$label->nodeValue = utf8_decode($label->nodeValue);
+				// $label->nodeValue = utf8_decode($label->nodeValue);
 
 				if(stripos($label->nodeValue, "Série") !== FALSE){
 					$content['serie'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
@@ -170,7 +170,7 @@ class Nota extends Model
 					$label = $col->getElementsByTagName('label')->item(0);
 					
 					if($label){
-						$label->nodeValue = utf8_decode($label->nodeValue);
+						// $label->nodeValue = utf8_decode($label->nodeValue);
 		
 						if(stripos($label->nodeValue, "Código do Produto") !== FALSE){
 							$data[$c]['codigo'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
