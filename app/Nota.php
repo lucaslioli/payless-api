@@ -282,6 +282,7 @@ class Nota extends Model
 		}
 		
 		try {
+
 			$nota = Nota::create([
 				'user_id' => 1,
 				'estabelecimento_id' => $estabelecimento->id,
@@ -290,8 +291,8 @@ class Nota extends Model
 				'data_emissao' => $data->nfce->data_emissao,
 				'hora_emissao' => $data->nfce->hora_emissao
 			]);
-		} catch (\Illuminate\Database\QueryException $e) {
-			echo "<br/>Falha ao cadastrar nota";
+		} catch (Exception $e) {
+			echo "<br/>Falha ao cadastrar nota: ".$e;
 			$ERROS++;
 		}
 
