@@ -10,7 +10,12 @@ class Estabelecimento extends Model
     protected $fillable = [
     	'nome', 
     	'cnpj', 
-    	'endereco'
+		'endereco',
+		'bairro',
+		'cep',
+		'cidade',
+		'uf',
+		'telefone'
 	];
 
 	public static function get_all(){

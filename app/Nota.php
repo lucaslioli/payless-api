@@ -16,178 +16,218 @@ class Nota extends Model
     	'serie', 
     	'data_emissao', 
     	'hora_emissao', 
-    	'chave_acesso'
+		'chave_acesso',
+		'protocolo'
 	];
 	
 	/**
-     * [get_content description]
-     * @param  String $key Chave de acesso da NFC-e
-     * @return String      Tabela com todas as informações da NFC-e
-     */
-    public static function get_nfce_content($key){
-		
-		$link = "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?chNFe=".$key;
+	 * Igual a get_nfce_content() porém, extrai os dados mais completos
+	 * @param  String $key Chave de acesso da NFC-e
+	 * @return String      Tabela com todas as informações da NFC-e
+	 */
+	public static function get_nfce_content($key)
+	{
+		$link = "C:/Users/lucas/Desktop/Precify/exemplo-nota-tabs-1.html";
 
 		// Busca conteúdo do link
 		$content = utf8_encode(file_get_contents($link));
 		// Verifica se o link é válido
-		if(strpos($content, "#FFFFEA") === FALSE)
+		if(strpos($content, "chaveNFe") === FALSE)
 			return FALSE;
 		// Elimina os espapaços indesejados da string
 		$content = trim(preg_replace('/\s+/', ' ', $content));
-		// Seleciona apenas a parte onde o background é da cor #FFFFEA
-		$content = explode("#FFFFEA", $content)[1];
-		// Separa apenas a tabela que possui o conteúdo de interesse
-		$content = strstr($content, "<table");
-		$content = substr($content, 0, strpos($content, "Versão XSLT"));
-		$content = substr($content, 0, strrpos($content, "<tr>"))."</table>";
-		
-		return $content;
+		// Seleciona apenas a parte do body que contem as abas (outra opção é '</script><body>')
+		$content = explode("</b></li></ul>", $content)[1];
+		// Separa apenas a parte que possui os dados, elemina os botões do final
+		$content = substr($content, 0, strpos($content, "</body>"));
 
+		return $content;
 	}
 
 	/**
-	 * Extrai os dados do Estabelecimento a partir de objeto DOMElement 
-	 * @param  DOMElement $table1 Objeto que contem a 1ª parte dos dados
-	 * @param  DOMElement $table2 Objeto que contem a 2ª parte dos dados
-	 * @return Array              Array com os dados do estabelecimento
+	 * Igual a get_company_data() porém, extrai os dados mais completos
+	 * @param  DOMElement $div Objeto que contem os dados
+	 * @return Array           Array com os dados do estabelecimento
 	 */
-	public static function get_company_data(DOMElement  $table1, DOMElement  $table2){
-
+	public static function get_company_data(DOMElement  $div)
+	{
 		$content = array();
-		// TABELA 1 - Dados do ESTABELECIMENTO: Nome, CNPJ, Inscrição Estadual
-		$cols = $table1->getElementsByTagName('td');
+		// Dados do ESTABELECIMENTO: Nome, CNPJ, Inscrição Estadual
+		$cols = $div->getElementsByTagName('td');
 		foreach ($cols as $col) {
-			$class = $col->getAttribute("class");
-			if($class == "NFCCabecalho_SubTitulo"){
-				$content['nome'] = $col->nodeValue;
+			$label = $col->getElementsByTagName('label')->item(0);
 
-			}else if ($class == "NFCCabecalho_SubTitulo1") {
-				// ex: " CNPJ: 00.000.000/0000-00 Inscrição Estadual: 0000000000"
-				$data = explode(" ", $col->nodeValue);
-				$content['cnpj'] = $data[2];
-				$content['inscricao_estadual'] = $data[5];
-			}
-		}
+			if($label){
+				$label->nodeValue = utf8_decode($label->nodeValue);
 
-		// TABELA 2 - Dados do ESTABELECIMENTO: Endereço
-		$cols = $table2->getElementsByTagName('td');
-		foreach ($cols as $col) {
-			$class = $col->getAttribute("class");
-			if ($class == "NFCCabecalho_SubTitulo1") {
-				$content['endereco'] = $col->nodeValue;
+				if(stripos($label->nodeValue, "Razão Social") !== FALSE){
+					$content['nome'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+				
+				}else if(stripos($label->nodeValue, "CNPJ") !== FALSE){
+					$content['cnpj'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+				
+				}else if(stripos($label->nodeValue, "Endereço") !== FALSE){
+					$content['endereco'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+				
+				}else if(stripos($label->nodeValue, "Bairro") !== FALSE){
+					$content['bairro'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+				
+				}else if(stripos($label->nodeValue, "CEP") !== FALSE){
+					$content['cep'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+				
+				}else if(stripos($label->nodeValue, "Município") !== FALSE && !isset($content['cidade'])){
+					$cidade = $col->getElementsByTagName('span')->item(0)->nodeValue;
+					$cidade = explode('- ', $cidade);
+					if(isset($cidade[1])){
+						$content['cidade'] = $cidade[1];
+					}else{
+						$content['cidade'] = $cidade;
+					}
+				
+				}else if(stripos($label->nodeValue, "UF") !== FALSE){
+					$content['uf'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+				
+				}else if(stripos($label->nodeValue, "Telefone") !== FALSE){
+					$content['telefone'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+				}
 			}
 		}
 
 		return $content;
-
 	}
 
 	/**
-	 * Extrai os dados da NFC-e a partir de objeto DOMElement
-	 * @param  DOMElement $table Objeto que contem a tabela com os dados
-	 * @return Array             Array com os dados da NFC-e
+	 * Igual a get_nfce_data() porém, extrai os dados mais completos
+	 * @param  DOMElement $div Objeto que contem a tabela com os dados
+	 * @return Array           Array com os dados da NFC-e
 	 */
-	public static function get_nfce_data(DOMElement $table){
-
+	public static function get_nfce_data(DOMElement $div)
+	{
 		$content = array();
-		// TABELA 4 - DAdos da NFC-e: Número, Serie, Data, Chave e Protocolo
-		$cols = $table->getElementsByTagName('td');
-		$flag = NULL;
+		// Dados da NFC-e: Número, Serie, Data e Protocolo
+		$cols = $div->getElementsByTagName('td');
 		foreach ($cols as $col) {
-			if(stripos($col->nodeValue, "nfc-e") !== FALSE){
-				// ex: " NFC-e nº: 0000 Série: 000 Data de Emissão: dd/mm/yyyy h:i:s"
-				$data = explode(" ", $col->nodeValue);
-				$content['numero'] = $data[3];
-				$content['serie'] = $data[5];
-				$content['data_emissao'] = $data[9];
-				$content['hora_emissao'] = $data[10];
+			$label = $col->getElementsByTagName('label')->item(0);
 			
-			}else if(stripos($col->nodeValue, "protocolo") !== FALSE){
-				// ex: " Protocolo de Autorização 0000000000000000"
-				$data = explode(": ", $col->nodeValue);
-				$content['protocolo'] = $data[1];
-			
-			}else if(stripos($col->nodeValue, "chave de acesso") !== FALSE){
-				$flag = 1;
-			
-			}else if ($flag) {
-				// ex: 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
-				$content["chave_acesso"] = $col->nodeValue;
-				$flag++;
+			if($label){
+				$label->nodeValue = utf8_decode($label->nodeValue);
+
+				if(stripos($label->nodeValue, "Série") !== FALSE){
+					$content['serie'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+				
+				}else if(stripos($label->nodeValue, "Data de Emissão") !== FALSE){
+					// ex: " dd/mm/yyyy h:i:s"
+					$data = explode(" ", $col->getElementsByTagName('span')->item(0)->nodeValue);
+					$content['data_emissao'] = $data[0];
+					$content['hora_emissao'] = substr($data[1], 0, strpos($data[1], "-"));
+				
+				}else if(stripos($label->nodeValue, "Protocolo") !== FALSE){
+					$input = $div->getElementsByTagName('input')->item(0);
+					$content['protocolo'] = $input->getAttribute('value');
+				}
 			}
 		}
 		return $content;
-
 	}
 
 	/**
 	 * Extrai os dados dos Produtos a partir de objeto DOMElement
-	 * @param  DOMElement $table Objeto que contem a tabela com todos os produtos
-	 * @return Array             Array com os dados dos produtos
+	 * @param  DOMElement $div Objeto que contem a tabela com todos os produtos
+	 * @return Array           Array com os dados dos produtos
 	 */
-	public static function get_products_data(DOMElement $table){
-
+	public static function get_products_data(DOMElement $div)
+	{
 		$data = array();
-		// TABELA 6 - Dados sobre os PRODUTOS
-		$rows = $table->getElementsByTagName('tr');
+		$tables = $div->getElementsByTagName('table');
+		
+		/**
+		 * Cada produto na nota possui 2 tabelas principais (e internas) de dados dentro da div "aba_nft_3";
+		 * Na aba de produtos, o cabeçalho seria a tabela 0, ao buscar pela lista de tabelas, por isso $i=1;
+		 * A lista de tabelas retorna também as tabelas filhas, o que permitiria a replicação de dados;
+		 * Cada uma das 2 tabelas principais possui a classe "toggle" ou "toggable";
+		 * Essas classes são verificadas, assim é possível pegar todas as TDs internas com segurança;
+		 */
+		
+		$c = 0;
+		for ($i=1; $i < $tables->length; $i++) {
+			$classe = $tables->item($i)->getAttribute("class");
 
-		for ($i=1; $i < $rows->length; $i++) { 
-			$cols = $rows->item($i)->getElementsByTagName('td');
-			
-			$produto['codigo'] = $cols->item(0)->nodeValue;
-			$produto['descricao'] = $cols->item(1)->nodeValue;
-			$produto['valor'] = $cols->item(4)->nodeValue;
-			$produto['un'] = $cols->item(3)->nodeValue;
+			if(stripos($classe, "toggle") !== FALSE){
+				$cols = $tables->item($i)->getElementsByTagName('td');
+				
+				foreach ($cols as $col) {
+					if($col->getAttribute("class")=="fixo-prod-serv-descricao"){
+						$data[$c]['descricao'] = $col->nodeValue;
+					}else if ($col->getAttribute("class")=="fixo-prod-serv-uc"){
+						$data[$c]['un'] = $col->nodeValue;
+					}
+				}
 
-			array_push($data,$produto);
-			
+			}else if(stripos($classe, "toggable") !== FALSE){
+				$cols = $tables->item($i)->getElementsByTagName('td');
+
+				foreach ($cols as $col) {
+					$label = $col->getElementsByTagName('label')->item(0);
+					
+					if($label){
+						$label->nodeValue = utf8_decode($label->nodeValue);
+		
+						if(stripos($label->nodeValue, "Código do Produto") !== FALSE){
+							$data[$c]['codigo'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+						
+						}else if(stripos($label->nodeValue, "Código NCM") !== FALSE){
+							$data[$c]['ncm'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+						
+						}else if(stripos($label->nodeValue, "Código EAN Comercial") !== FALSE){
+							$data[$c]['ean'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+						
+						}else if(stripos($label->nodeValue, "Valor unitário de comercialização") !== FALSE){
+							$data[$c]['valor'] = $col->getElementsByTagName('span')->item(0)->nodeValue;
+						}
+					}
+				}
+				$c++;
+			}
 		}
 
 		return $data;
-
 	}
 
 	/**
-	 * Script responsável por extrair os dados da nota
-	 * @param  int  $key         chave de acesso da nota com 44 dígitos
-	 * @return json              Retorna JSON com todos os dados ou mensagem de erro
+	 * Igual a get_all_data() porém, extrai os dados mais completos
+	 * @param  int  $key       chave de acesso da nota com 44 dígitos
+	 * @return void            retorna array com todos os dados ou mensagem de erro
 	 */
-	public static function get_all_data($key){
-
+	public static function get_all_data($key)
+	{
 		$content = self::get_nfce_content($key);
 
-		if($content == FALSE)
-			return "400";
+    	if($content == FALSE)
+    		return 'Chave de Acesso inválida!';
 
 		// Inicializa um objeto DOM
 		$dom = new DOMDocument;
 		// Descarta os espaços em branco
-		$dom->preserveWhiteSpace = false;   
-		// Carrega o conteúdo como HTML
-		$dom->loadHTML(utf8_decode($content));
+		$dom->preserveWhiteSpace = false;
+		// Carrega o conteúdo como HTML (Utilizado o @ devido a erro interno da lib)
+		@$dom->loadHTML(utf8_decode($content));
+
 		// Seleciona todos os elementos table
-		$tables = $dom->getElementsByTagName('table');
+		$elements = $dom->getElementsByTagName('div');
 		
 		$data = array();
+		
+		// Dados da NF-e - div aba_nft_0
+		$data['nfce'] = self::get_nfce_data($elements->item(1));
+		$data['nfce']['chave_acesso'] = $key;
 
-		// TABELA 1 e 2 - Dados do ESTABELECIMENTO: Nome, CNPJ, Inscrição Estadual e Endereço
-		$data['estabelecimento'] = self::get_company_data($tables->item(1), $tables->item(2));
+		// Dados da Empresa - div aba_nft_1
+		$data['estabelecimento'] = self::get_company_data($elements->item(3));
 
-		# TABELA 3 - Cabeçalho sobre a nota (sem uso aparente)
-
-		// TABELA 4 - DAdos da NFC-e: Número, Serie, Data, Chave e Protocolo
-		$data['nfce'] = self::get_nfce_data($tables->item(4));
-
-		# TABELA 5 - Consumidor geralmente não identificado (sem uso aparente)
-
-		// TABELA 6 - Dados sobre os PRODUTOS
-		$data['produtos'] = self::get_products_data($tables->item(6));
-
-		# TABELA 7 - Valores totais da nota (sem uso aparente)
+		// Dados da Empresa - div aba_nft_3
+		$data['produtos'] = self::get_products_data($elements->item(17));
 		
 		return $data;
-
 	}
 
 	/**
@@ -197,8 +237,8 @@ class Nota extends Model
 	 * are updated with it's new price
 	 * @return String	http response status code that indicates the success or failure of the operation
 	 */
-	public static function store_nfce($key){
-		
+	public static function store_nfce($key)
+	{
 		DB::beginTransaction();
 
 		$ERROS = 0;
@@ -210,6 +250,7 @@ class Nota extends Model
 		}
 
 		$data = self::get_all_data($key);
+		
 		if($data == "400")
 			return "400";
 
@@ -228,13 +269,18 @@ class Nota extends Model
 					'nome' => $data->estabelecimento->nome,
 					'cnpj' => $data->estabelecimento->cnpj,
 					'endereco' => $data->estabelecimento->endereco,
+					'bairro' => $data->estabelecimento->bairro,
+					'cep' => $data->estabelecimento->cep,
+					'cidade' => $data->estabelecimento->cidade,
+					'uf' => $data->estabelecimento->uf,
+					'telefone' => $data->estabelecimento->telefone
 				]);
 			} catch (\Illuminate\Database\QueryException $e) {
 				// echo "<br/>Falha ao cadastrar estabelecimento ".$data->estabelecimento->nome;
 				$ERROS++;
 			}
 		}
-
+		
 		try {
 			$nota = Nota::create([
 				'user_id' => 1,
@@ -266,7 +312,9 @@ class Nota extends Model
 						'codigo' => $produto->codigo,
 						'descricao' => strtoupper($produto->descricao),
 						'valor' => $produto->valor,
-						'un' => strtoupper($produto->un)
+						'un' => strtoupper($produto->un),
+						'ean' => $produto->ean,
+						'ncm' => $produto->ncm
 					]);
 				} catch (\Illuminate\Database\QueryException $e) {
 					// echo "<br/>Falha ao cadastrar produto ".$produto->descricao." da nota ".$key;
@@ -287,6 +335,7 @@ class Nota extends Model
 				}
 			}
 		} // Fecha foreach de produtos
+
 		if($ERROS){
 			DB::rollback();
 			// echo "<br/>ERRO - ".$key."";

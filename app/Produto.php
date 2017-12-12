@@ -12,7 +12,9 @@ class Produto extends Model
     	'codigo', 
     	'descricao', 
     	'valor', 
-    	'un'
+		'un',
+		'ean',
+		'ncm'
 	];
 
 	public static function get_home_data(){

@@ -230,7 +230,7 @@ class Nfce extends Model
                     $estabelecimento = Estabelecimento::create([
                         'nome' => $data->estabelecimento->nome,
                         'cnpj' => $data->estabelecimento->cnpj,
-                        'endereco' => $data->estabelecimento->endereco,
+                        'endereco' => $data->estabelecimento->endereco
                     ]);
                 } catch (\Illuminate\Database\QueryException $e) {
                     echo "<br/>Falha ao cadastrar estabelecimento ".$data->estabelecimento->nome;
