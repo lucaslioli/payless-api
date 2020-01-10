@@ -1,4 +1,4 @@
-# Pay Less
+# Pay Less - Renamed to "Precify"
 
 Ferramenta para auxílio na localização e comparação de ofertas de produtos
 
